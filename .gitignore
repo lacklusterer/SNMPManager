@@ -1,0 +1,5 @@
+target/
+.~lock.snmp_report.docx#
+.classpath
+.settings/
+.project
