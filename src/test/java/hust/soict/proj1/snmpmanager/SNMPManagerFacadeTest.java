@@ -10,8 +10,8 @@ public class SNMPManagerFacadeTest {
 		SNMPManagerFacade snmpManager = new SNMPManagerFacade();
 
 		// Create the SNMP target
-		String communityString = "read_only_community_string";
-		String ipAddr = "127.0.0.1";
+		String communityString = "killme";
+		String ipAddr = "localhost";
 		int retries = 2;
 		long timeout = 10000;
 		int version = 2;
