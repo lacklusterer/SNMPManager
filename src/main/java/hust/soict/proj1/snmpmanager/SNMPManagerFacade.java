@@ -76,9 +76,7 @@ public class SNMPManagerFacade {
 		}
 
 		try {
-			PDU pdu = new PDU();
-			pdu.add(new VariableBinding(new OID(oid)));
-			pdu.setType(PDU.GET);
+			PDU pdu = constructPDU(oid, PDU.GET);
 
 			ResponseEvent<?> response = snmp.get(pdu, target);
 			return parseResponse(response);
@@ -95,6 +93,13 @@ public class SNMPManagerFacade {
 				System.out.println("Error: " + e.getMessage());
 			}
 		}
+	}
+
+	private PDU constructPDU(String oid, int pduType) {
+		PDU pdu = new PDU();
+		pdu.add(new VariableBinding(new OID(oid)));
+		pdu.setType(pduType);
+		return pdu;
 	}
 
 	private String parseResponse(ResponseEvent response) {
