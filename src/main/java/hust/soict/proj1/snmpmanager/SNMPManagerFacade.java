@@ -22,6 +22,11 @@ public class SNMPManagerFacade {
 	private Map<String, Target<?>> targetMap;
 
 	public SNMPManagerFacade() {
+		try {
+			this.snmp = new Snmp(new DefaultUdpTransportMapping());
+		} catch (IOException e) {
+			System.out.println("Error: " + e.getMessage());
+		}
 		this.targetMap = new HashMap<>();
 	}
 
@@ -64,7 +69,6 @@ public class SNMPManagerFacade {
 
 	public String get(String oid, String ipAddr) {
 		try {
-			snmp = new Snmp(new DefaultUdpTransportMapping());
 			snmp.listen();
 
 			PDU pdu = new PDU();
