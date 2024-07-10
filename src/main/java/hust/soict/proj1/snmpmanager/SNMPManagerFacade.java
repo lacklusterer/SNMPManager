@@ -24,9 +24,12 @@ public class SNMPManagerFacade {
 	public SNMPManagerFacade() {
 		try {
 			this.snmp = new Snmp(new DefaultUdpTransportMapping());
+			snmp.listen();
 		} catch (IOException e) {
 			System.out.println("Error: " + e.getMessage());
+			return;
 		}
+
 		this.targetMap = new HashMap<>();
 	}
 
@@ -69,7 +72,6 @@ public class SNMPManagerFacade {
 
 	public String get(String oid, String ipAddr) {
 		try {
-			snmp.listen();
 
 			PDU pdu = new PDU();
 			pdu.add(new VariableBinding(new OID(oid)));
@@ -90,21 +92,19 @@ public class SNMPManagerFacade {
 			} else {
 				return "Error: No response received.";
 			}
-
 		} catch (IOException e) {
-			// Handle SNMP-related IOException
 			return "Error: " + e.getMessage();
-		} finally {
-			if (snmp != null) {
-				try {
-					snmp.close();
-				} catch (IOException e) {
-					System.err.println("Error closing SNMP session: " + e.getMessage());
-				}
-			}
 		}
-
 		return null;
 	}
 
+	public void closeSnmp() {
+		if (snmp != null) {
+			try {
+				snmp.close();
+			} catch (IOException e) {
+				System.out.println("Error: " + e.getMessage());
+			}
+		}
+	}
 }

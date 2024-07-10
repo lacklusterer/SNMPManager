@@ -13,7 +13,7 @@ public class SNMPManagerFacadeTest {
 		String communityString = "killme";
 		String ipAddr = "localhost";
 		int retries = 2;
-		long timeout = 10000;
+		long timeout = 1000;
 		int version = 2;
 		snmpManager.createTarget(ipAddr, communityString, retries, timeout, version);
 

@@ -16,5 +16,7 @@ public class Main {
 		String oid = "1.3.6.1.2.1.1.1.0";
 		String result = snmpManager.get(oid, ipAddr);
 		System.out.println("Result: " + result);
+
+		snmpManager.closeSnmp();
 	}
 }

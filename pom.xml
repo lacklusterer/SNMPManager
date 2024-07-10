@@ -64,6 +64,21 @@
 					<configuration>
 						<mainClass>hust.soict.proj1.snmpmanager.Main</mainClass>
 					</configuration>
+					<executions>
+						<execution>
+							<id>pre-test</id>
+							<phase>pre-integration-test</phase>
+							<goals>
+								<goal>exec</goal>
+							</goals>
+							<configuration>
+								<executable>sh</executable>
+								<arguments>
+									<argument>${basedir}/scripts/pre-test.sh</argument>
+								</arguments>
+							</configuration>
+						</execution>
+					</executions>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
