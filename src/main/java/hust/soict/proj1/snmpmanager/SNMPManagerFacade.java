@@ -6,6 +6,8 @@ import org.snmp4j.mp.SnmpConstants;
 import org.snmp4j.smi.*;
 import org.snmp4j.transport.DefaultUdpTransportMapping;
 import org.snmp4j.Target;
+import org.snmp4j.UserTarget;
+import org.snmp4j.AbstractTarget;
 import org.snmp4j.CommunityTarget;
 import org.snmp4j.PDU;
 
@@ -24,23 +26,40 @@ public class SNMPManagerFacade {
 	}
 
 	public void createTarget(String ipAddr, String communityString, int retries, long timeout, int version) {
-		CommunityTarget<Address> target = new CommunityTarget<>();
-		target.setCommunity(new OctetString(communityString));
-		target.setAddress(GenericAddress.parse("udp:" + ipAddr + "/161"));
-		target.setRetries(retries);
-		target.setTimeout(timeout);
-
+		AbstractTarget target = null;
+		int snmpVersion = 0;
 		switch (version) {
 			case 1:
-				target.setVersion(SnmpConstants.version1);
+				snmpVersion = SnmpConstants.version1;
 				break;
 			case 2:
-				target.setVersion(SnmpConstants.version2c);
+				snmpVersion = SnmpConstants.version2c;
+				break;
+			case 3:
+				snmpVersion = SnmpConstants.version3;
 				break;
 			default:
 				throw new IllegalArgumentException("Invalid SNMP version: " + version);
 		}
+
+		if (version == 3) {
+			target = new UserTarget();
+			// TODO: Add the remaining arguments for version3
+		} else {
+			target = new CommunityTarget();
+			((CommunityTarget) target).setCommunity(new OctetString(communityString));
+		}
+
+		target.setVersion(snmpVersion);
+		target.setAddress(GenericAddress.parse("udp:" + ipAddr + "/161"));
+		target.setRetries(retries);
+		target.setTimeout(timeout);
+
 		targetMap.put(ipAddr, target);
+	}
+
+	public void removeTarget(String ipAddr) {
+		targetMap.remove(ipAddr);
 	}
 
 	public String get(String oid, String ipAddr) {
