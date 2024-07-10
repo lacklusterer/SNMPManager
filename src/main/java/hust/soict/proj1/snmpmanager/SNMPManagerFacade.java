@@ -29,7 +29,6 @@ public class SNMPManagerFacade {
 			System.out.println("Error: " + e.getMessage());
 			return;
 		}
-
 		this.targetMap = new HashMap<>();
 	}
 
@@ -71,31 +70,21 @@ public class SNMPManagerFacade {
 	}
 
 	public String get(String oid, String ipAddr) {
-		try {
+		Target target = targetMap.get(ipAddr);
+		if (target == null) {
+			return "Error: Target not found.";
+		}
 
+		try {
 			PDU pdu = new PDU();
 			pdu.add(new VariableBinding(new OID(oid)));
 			pdu.setType(PDU.GET);
 
-			Target<?> target = targetMap.get(ipAddr);
 			ResponseEvent<?> response = snmp.get(pdu, target);
-
-			if (response != null && response.getResponse() != null) {
-				PDU responsePDU = response.getResponse();
-				if (responsePDU.getErrorStatus() == PDU.noError) {
-					for (VariableBinding vb : responsePDU.getVariableBindings()) {
-						return vb.toString();
-					}
-				} else {
-					return "Error: " + responsePDU.getErrorStatusText();
-				}
-			} else {
-				return "Error: No response received.";
-			}
+			return parseResponse(response);
 		} catch (IOException e) {
 			return "Error: " + e.getMessage();
 		}
-		return null;
 	}
 
 	public void closeSnmp() {
@@ -105,6 +94,23 @@ public class SNMPManagerFacade {
 			} catch (IOException e) {
 				System.out.println("Error: " + e.getMessage());
 			}
+		}
+	}
+
+	private String parseResponse(ResponseEvent response) {
+		if (response != null && response.getResponse() != null) {
+			PDU responsePDU = response.getResponse();
+			if (responsePDU.getErrorStatus() == PDU.noError) {
+				StringBuilder result = new StringBuilder();
+				for (VariableBinding vb : responsePDU.getVariableBindings()) {
+					result.append(vb.toString()).append("\n");
+				}
+				return result.toString();
+			} else {
+				return "Error: " + responsePDU.getErrorStatusText();
+			}
+		} else {
+			return "Error: No response received.";
 		}
 	}
 }
