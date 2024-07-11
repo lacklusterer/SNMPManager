@@ -11,7 +11,7 @@ public class SNMPManagerFacadeTest {
 
 		// Create the SNMP target
 		String communityString = "killme";
-		String ipAddr = "localhost";
+		String ipAddr = "localhost/161";
 		int retries = 2;
 		long timeout = 1000;
 		int version = 2;
@@ -22,5 +22,11 @@ public class SNMPManagerFacadeTest {
 		String result = snmpManager.get(oid, ipAddr);
 		Assert.assertNotNull(result);
 		System.out.println("Result: " + result);
+
+		// Get next object
+		String oidNext = "1.3.6.1.2.1.1.1.0";
+		String resultNext = snmpManager.getNext(oidNext, ipAddr);
+		Assert.assertNotNull(resultNext);
+		System.out.println("Result next: " + resultNext);
 	}
 }

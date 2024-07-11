@@ -58,7 +58,7 @@ public class SNMPManagerFacade {
 		}
 
 		target.setVersion(snmpVersion);
-		target.setAddress(GenericAddress.parse("udp:" + ipAddr + "/161"));
+		target.setAddress(GenericAddress.parse("udp:" + ipAddr));
 		target.setRetries(retries);
 		target.setTimeout(timeout);
 
@@ -70,14 +70,25 @@ public class SNMPManagerFacade {
 	}
 
 	public String get(String oid, String ipAddr) {
+		return sendRequest(oid, PDU.GET, ipAddr);
+	}
+
+	public String getNext(String oid, String ipAddr) {
+		return sendRequest(oid, PDU.GETNEXT, ipAddr);
+	}
+
+	public String getBulk(String oid, String ipAddr) {
+		// TODO: Implement
+		return null;
+	}
+
+	public String sendRequest(String oid, int pduType, String ipAddr) {
 		Target target = targetMap.get(ipAddr);
 		if (target == null) {
 			return "Error: Target not found.";
 		}
-
 		try {
-			PDU pdu = constructPDU(oid, PDU.GET);
-
+			PDU pdu = constructPDU(oid, pduType);
 			ResponseEvent<?> response = snmp.get(pdu, target);
 			return parseResponse(response);
 		} catch (IOException e) {
