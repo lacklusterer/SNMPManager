@@ -32,6 +32,19 @@ public class SNMPManagerFacade {
 		this.targetMap = new HashMap<>();
 	}
 
+	public String get(String oid, String ipAddr) {
+		return sendRequest(oid, PDU.GET, ipAddr);
+	}
+
+	public String getNext(String oid, String ipAddr) {
+		return sendRequest(oid, PDU.GETNEXT, ipAddr);
+	}
+
+	public String getBulk(String oid, String ipAddr) {
+		// TODO: Implement
+		return null;
+	}
+
 	public void createTarget(String ipAddr, String communityString, int retries, long timeout, int version) {
 		AbstractTarget target = null;
 		int snmpVersion = 0;
@@ -67,19 +80,6 @@ public class SNMPManagerFacade {
 
 	public void removeTarget(String ipAddr) {
 		targetMap.remove(ipAddr);
-	}
-
-	public String get(String oid, String ipAddr) {
-		return sendRequest(oid, PDU.GET, ipAddr);
-	}
-
-	public String getNext(String oid, String ipAddr) {
-		return sendRequest(oid, PDU.GETNEXT, ipAddr);
-	}
-
-	public String getBulk(String oid, String ipAddr) {
-		// TODO: Implement
-		return null;
 	}
 
 	public String sendRequest(String oid, int pduType, String ipAddr) {
