@@ -5,10 +5,10 @@ import org.snmp4j.event.ResponseEvent;
 import org.snmp4j.mp.SnmpConstants;
 import org.snmp4j.smi.*;
 import org.snmp4j.transport.DefaultUdpTransportMapping;
-import org.snmp4j.Target;
-import org.snmp4j.UserTarget;
 import org.snmp4j.AbstractTarget;
+import org.snmp4j.Target;
 import org.snmp4j.CommunityTarget;
+import org.snmp4j.UserTarget;
 import org.snmp4j.PDU;
 
 import java.util.HashMap;
@@ -43,6 +43,25 @@ public class SNMPManagerFacade {
 	public String getBulk(String oid, String ipAddr) {
 		// TODO: Implement
 		return null;
+	}
+
+	public String walk(String oid, String ipAddr) {
+		StringBuilder result = new StringBuilder();
+		String nextOid = oid;
+		while (nextOid != null) {
+			String response = getNext(nextOid, ipAddr);
+			if (response.startsWith("Error:") || !response.contains(oid)) {
+				break;
+			}
+			result.append(response);
+			nextOid = getNextOidFromResponse(response);
+		}
+		return result.toString();
+	}
+
+	public String discover(String ipAddr) {
+		System.out.println("Recursively walking with root oid");
+		return walk(".1.3.6.1.2.1", ipAddr);
 	}
 
 	public void createTarget(String ipAddr, String communityString, int retries, long timeout, int version) {
@@ -82,20 +101,6 @@ public class SNMPManagerFacade {
 		targetMap.remove(ipAddr);
 	}
 
-	public String sendRequest(String oid, int pduType, String ipAddr) {
-		Target target = targetMap.get(ipAddr);
-		if (target == null) {
-			return "Error: Target not found.";
-		}
-		try {
-			PDU pdu = constructPDU(oid, pduType);
-			ResponseEvent<?> response = snmp.get(pdu, target);
-			return parseResponse(response);
-		} catch (IOException e) {
-			return "Error: " + e.getMessage();
-		}
-	}
-
 	public void closeSnmp() {
 		if (snmp != null) {
 			try {
@@ -113,6 +118,20 @@ public class SNMPManagerFacade {
 		return pdu;
 	}
 
+	private String sendRequest(String oid, int pduType, String ipAddr) {
+		Target target = targetMap.get(ipAddr);
+		if (target == null) {
+			return "Error: Target not found.";
+		}
+		try {
+			PDU pdu = constructPDU(oid, pduType);
+			ResponseEvent<?> response = snmp.get(pdu, target);
+			return parseResponse(response);
+		} catch (IOException e) {
+			return "Error: " + e.getMessage();
+		}
+	}
+
 	private String parseResponse(ResponseEvent response) {
 		if (response != null && response.getResponse() != null) {
 			PDU responsePDU = response.getResponse();
@@ -128,5 +147,17 @@ public class SNMPManagerFacade {
 		} else {
 			return "Error: No response received.";
 		}
+	}
+
+	private String getNextOidFromResponse(String response) {
+		String[] lines = response.split("\n");
+		if (lines.length > 0) {
+			String lastLine = lines[lines.length - 1];
+			String[] parts = lastLine.split(" = ");
+			if (parts.length > 0) {
+				return parts[0].trim();
+			}
+		}
+		return null;
 	}
 }
