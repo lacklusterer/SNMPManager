@@ -1,3 +1,5 @@
+[class diagram](https://drive.google.com/file/d/18bs7_Xo0Qfw2SHyhk0s_6W5daaPKrk3D/view?usp=sharing) 
+
 ## Dependencies:
 - maven
 - net-snmp (for testing only)
