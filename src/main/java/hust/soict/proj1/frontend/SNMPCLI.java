@@ -8,7 +8,7 @@ import hust.soict.proj1.snmpmanager.SNMPManagerFacade;
 public class SNMPCLI {
 
 	private static final Scanner scanner = new Scanner(System.in);
-	private static final SNMPManagerFacade facade = new SNMPManagerFacade();
+	private static final SNMPManagerFacade manager = new SNMPManagerFacade();
 
 	public static void main(String[] args) {
 		boolean running = true;
@@ -33,7 +33,7 @@ public class SNMPCLI {
 					System.out.println("Invalid choice, please try again.");
 			}
 		}
-		facade.closeSnmp();
+		manager.closeSnmp();
 	}
 
 	private static void printMenu() {
@@ -68,12 +68,12 @@ public class SNMPCLI {
 		String versionInput = scanner.nextLine();
 		int version = versionInput.isEmpty() ? 2 : Integer.parseInt(versionInput);
 
-		facade.createTarget(ipAddr, communityString, retries, timeout, version);
+		manager.createTarget(ipAddr, communityString, retries, timeout, version);
 		System.out.println("Target created successfully.");
 	}
 
 	private static void listManagedDevices() {
-		Map<String, Integer> devices = facade.getManagedDevices();
+		Map<String, Integer> devices = manager.getManagedDevices();
 		if (devices.isEmpty()) {
 			System.out.println("\nNo managed devices.");
 		} else {
@@ -88,7 +88,7 @@ public class SNMPCLI {
 
 	private static void makeRequest() {
 		listManagedDevices();
-		Map<String, Integer> devices = facade.getManagedDevices();
+		Map<String, Integer> devices = manager.getManagedDevices();
 		if (devices.isEmpty()) {
 			return;
 		}
@@ -110,5 +110,32 @@ public class SNMPCLI {
 		String ipAddr = ipArray[targetIndex];
 
 		System.out.println("\nCurrent selected device: " + ipAddr);
+
+		System.out.println("\nRequest Type:");
+		System.out.println("1. GET");
+		System.out.println("2. Print all possible OIDs");
+		System.out.print("Enter request type: ");
+		int requestType = Integer.parseInt(scanner.nextLine());
+
+		System.out.print("Enter OID: ");
+		String oid = scanner.nextLine();
+
+		String response = "";
+		switch (requestType) {
+			case 1:
+				response = "GET response: " + manager.get(oid, ipAddr);
+				break;
+			case 2:
+				response = manager.discover(ipAddr);
+				break;
+			default:
+				System.out.println("Invalid request type.");
+				return;
+		}
+		System.out.println("\n" + response);
+
+		// TODO: Discover will put data into a database instead of just printing out
 	}
+
+	// TODO: Parse MIB file and create a database
 }
