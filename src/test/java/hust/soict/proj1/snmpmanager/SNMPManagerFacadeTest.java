@@ -1,5 +1,6 @@
 package hust.soict.proj1.snmpmanager;
 
+import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -24,6 +25,12 @@ public class SNMPManagerFacadeTest {
 		String getNextResult = snmpManager.getNext(oid, ipAddr);
 		Assert.assertNotNull(getNextResult);
 		System.out.println("Result next: " + getNextResult);
+
+		Map<String, Integer> managedDevices = snmpManager.getManagedDevices();
+		System.out.println("Managed Devices:");
+		for (Map.Entry<String, Integer> entry : managedDevices.entrySet()) {
+			System.out.println("IP Address: " + entry.getKey() + ", SNMP Version: " + entry.getValue());
+		}
 
 	}
 }
