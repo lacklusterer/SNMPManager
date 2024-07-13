@@ -163,4 +163,12 @@ public class SNMPManagerFacade {
 		}
 		return null;
 	}
+
+	public Map<String, Integer> getManagedDevices() {
+		Map<String, Integer> devices = new HashMap<>();
+		for (Map.Entry<String, Target<?>> entry : targetMap.entrySet()) {
+			devices.put(entry.getKey(), entry.getValue().getVersion());
+		}
+		return devices;
+	}
 }
