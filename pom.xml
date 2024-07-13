@@ -62,7 +62,7 @@
 					<artifactId>exec-maven-plugin</artifactId>
 					<version>3.1.0</version>
 					<configuration>
-						<mainClass>hust.soict.proj1.snmpmanager.Main</mainClass>
+						<mainClass>hust.soict.proj1.frontend.SNMPCLI</mainClass>
 					</configuration>
 					<executions>
 						<execution>
