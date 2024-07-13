@@ -50,18 +50,21 @@ public class SNMPManagerFacade {
 		String nextOid = oid;
 		while (nextOid != null) {
 			String response = getNext(nextOid, ipAddr);
-			if (response.startsWith("Error:") || !response.contains(oid)) {
+			if (response.startsWith("Error:")) {
 				break;
 			}
 			result.append(response);
 			nextOid = getNextOidFromResponse(response);
+			if (nextOid == null || !nextOid.startsWith(oid)) {
+				break;
+			}
 		}
 		return result.toString();
 	}
 
 	public String discover(String ipAddr) {
 		System.out.println("Recursively walking with root oid");
-		return walk(".1.3.6.1.2.1", ipAddr);
+		return walk("1.3.6.1.2.1", ipAddr);
 	}
 
 	public void createTarget(String ipAddr, String communityString, int retries, long timeout, int version) {
@@ -119,20 +122,20 @@ public class SNMPManagerFacade {
 	}
 
 	private String sendRequest(String oid, int pduType, String ipAddr) {
-		Target target = targetMap.get(ipAddr);
+		Target<?> target = targetMap.get(ipAddr);
 		if (target == null) {
 			return "Error: Target not found.";
 		}
 		try {
 			PDU pdu = constructPDU(oid, pduType);
-			ResponseEvent<?> response = snmp.get(pdu, target);
+			ResponseEvent<?> response = snmp.send(pdu, target);
 			return parseResponse(response);
 		} catch (IOException e) {
 			return "Error: " + e.getMessage();
 		}
 	}
 
-	private String parseResponse(ResponseEvent response) {
+	private String parseResponse(ResponseEvent<?> response) {
 		if (response != null && response.getResponse() != null) {
 			PDU responsePDU = response.getResponse();
 			if (responsePDU.getErrorStatus() == PDU.noError) {
