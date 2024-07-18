@@ -2,13 +2,9 @@ package hust.soict.proj1.snmpmanager;
 
 import org.snmp4j.Snmp;
 import org.snmp4j.event.ResponseEvent;
-import org.snmp4j.mp.SnmpConstants;
-import org.snmp4j.smi.*;
 import org.snmp4j.transport.DefaultUdpTransportMapping;
 import org.snmp4j.AbstractTarget;
 import org.snmp4j.Target;
-import org.snmp4j.CommunityTarget;
-import org.snmp4j.UserTarget;
 import org.snmp4j.PDU;
 
 import java.util.HashMap;

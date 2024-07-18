@@ -2,20 +2,14 @@ package hust.soict.proj1.snmpmanager;
 
 import org.snmp4j.PDU;
 import org.snmp4j.AbstractTarget;
-import org.snmp4j.Target;
 import org.snmp4j.CommunityTarget;
 import org.snmp4j.UserTarget;
 import org.snmp4j.smi.*;
 import org.snmp4j.event.ResponseEvent;
 import org.snmp4j.mp.SnmpConstants;
 
-import java.io.IOException;
-import java.util.Map;
-import java.util.HashMap;
-
 public class SNMPUtils {
-
-	public static AbstractTarget createTarget(String ipAddr, String communityString, int retries, long timeout,
+	protected static AbstractTarget createTarget(String ipAddr, String communityString, int retries, long timeout,
 			int version) {
 		AbstractTarget target = null;
 		int snmpVersion = 0;
@@ -49,14 +43,14 @@ public class SNMPUtils {
 		return target;
 	}
 
-	public static PDU constructPDU(String oid, int pduType) {
+	protected static PDU constructPDU(String oid, int pduType) {
 		PDU pdu = new PDU();
 		pdu.add(new VariableBinding(new OID(oid)));
 		pdu.setType(pduType);
 		return pdu;
 	}
 
-	public static String parseResponse(ResponseEvent<?> response) {
+	protected static String parseResponse(ResponseEvent<?> response) {
 		if (response != null && response.getResponse() != null) {
 			PDU responsePDU = response.getResponse();
 			if (responsePDU.getErrorStatus() == PDU.noError) {
@@ -73,7 +67,7 @@ public class SNMPUtils {
 		}
 	}
 
-	public static String getNextOidFromResponse(String response) {
+	protected static String getNextOidFromResponse(String response) {
 		String[] lines = response.split("\n");
 		if (lines.length > 0) {
 			String lastLine = lines[lines.length - 1];
@@ -85,7 +79,7 @@ public class SNMPUtils {
 		return null;
 	}
 
-	public static String walk(SNMPManagerFacade manager, String oid, String ipAddr) {
+	protected static String walk(SNMPManagerFacade manager, String oid, String ipAddr) {
 		StringBuilder result = new StringBuilder();
 		String nextOid = oid;
 		while (nextOid != null) {
