@@ -26,17 +26,17 @@ sudo mkdir -p /etc/snmp
 
 # Create and edit snmpd.conf
 sudo tee /etc/snmp/snmpd.conf >/dev/null <<EOF
-rocommunity killme
-trapsink localhost killme
+rocommunity community_string
+trapsink localhost community_string
 EOF
 
 # Create and edit snmptrapd.conf
 sudo tee /etc/snmp/snmptrapd.conf >/dev/null <<EOF
-authCommunity log,execute,net killme
+authCommunity log,execute,net community_string
 EOF
 ```
 
-2. Start services:
+2. Start services (for systemd)
 
 ```
 # service snmpd restart
@@ -60,7 +60,7 @@ Confirm that the java application return the same value
 5. Send an example trap:
 
 ```
-snmptrap -v 2c -c killme localhost '' SNMPv2-MIB::coldStart
+snmptrap -v 2c -c community_string localhost '' SNMPv2-MIB::coldStart
 ```
 
 Confirm that the java application return the same value
