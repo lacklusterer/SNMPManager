@@ -1,5 +1,6 @@
 package hust.soict.proj1.snmpmanager;
 
+import org.snmp4j.Snmp;
 import org.snmp4j.PDU;
 import org.snmp4j.AbstractTarget;
 import org.snmp4j.CommunityTarget;
@@ -7,6 +8,8 @@ import org.snmp4j.UserTarget;
 import org.snmp4j.smi.*;
 import org.snmp4j.event.ResponseEvent;
 import org.snmp4j.mp.SnmpConstants;
+import org.snmp4j.Target;
+import java.io.IOException;
 
 public class SNMPUtils {
 	protected static AbstractTarget createTarget(String ipAddr, String communityString, int retries, long timeout,
@@ -43,14 +46,14 @@ public class SNMPUtils {
 		return target;
 	}
 
-	protected static PDU constructPDU(String oid, int pduType) {
+	private static PDU constructPDU(String oid, int pduType) {
 		PDU pdu = new PDU();
 		pdu.add(new VariableBinding(new OID(oid)));
 		pdu.setType(pduType);
 		return pdu;
 	}
 
-	protected static String parseResponse(ResponseEvent<?> response) {
+	private static String parseResponse(ResponseEvent<?> response) {
 		if (response != null && response.getResponse() != null) {
 			PDU responsePDU = response.getResponse();
 			if (responsePDU.getErrorStatus() == PDU.noError) {
@@ -67,7 +70,7 @@ public class SNMPUtils {
 		}
 	}
 
-	protected static String getNextOidFromResponse(String response) {
+	private static String getNextOidFromResponse(String response) {
 		String[] lines = response.split("\n");
 		if (lines.length > 0) {
 			String lastLine = lines[lines.length - 1];
@@ -94,5 +97,18 @@ public class SNMPUtils {
 			}
 		}
 		return result.toString();
+	}
+
+	protected static String sendRequest(String oid, int pduType, Target target, Snmp snmp) {
+		if (target == null) {
+			return "Error: Target not found.";
+		}
+		try {
+			PDU pdu = SNMPUtils.constructPDU(oid, pduType);
+			ResponseEvent<?> response = snmp.send(pdu, target);
+			return SNMPUtils.parseResponse(response);
+		} catch (IOException e) {
+			return "Error: " + e.getMessage();
+		}
 	}
 }

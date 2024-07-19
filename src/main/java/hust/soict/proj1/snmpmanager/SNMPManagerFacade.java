@@ -1,7 +1,6 @@
 package hust.soict.proj1.snmpmanager;
 
 import org.snmp4j.Snmp;
-import org.snmp4j.event.ResponseEvent;
 import org.snmp4j.transport.DefaultUdpTransportMapping;
 import org.snmp4j.AbstractTarget;
 import org.snmp4j.Target;
@@ -41,11 +40,13 @@ public class SNMPManagerFacade {
 	}
 
 	public String get(String oid, String ipAddr) {
-		return sendRequest(oid, PDU.GET, ipAddr);
+		Target target = targetMap.get(ipAddr);
+		return SNMPUtils.sendRequest(oid, PDU.GET, target, snmp);
 	}
 
 	public String getNext(String oid, String ipAddr) {
-		return sendRequest(oid, PDU.GETNEXT, ipAddr);
+		Target target = targetMap.get(ipAddr);
+		return SNMPUtils.sendRequest(oid, PDU.GETNEXT, target, snmp);
 	}
 
 	public String getBulk(String oid, String ipAddr) {
@@ -78,20 +79,6 @@ public class SNMPManagerFacade {
 			} catch (IOException e) {
 				System.out.println("Error: " + e.getMessage());
 			}
-		}
-	}
-
-	private String sendRequest(String oid, int pduType, String ipAddr) {
-		Target<?> target = targetMap.get(ipAddr);
-		if (target == null) {
-			return "Error: Target not found.";
-		}
-		try {
-			PDU pdu = SNMPUtils.constructPDU(oid, pduType);
-			ResponseEvent<?> response = snmp.send(pdu, target);
-			return SNMPUtils.parseResponse(response);
-		} catch (IOException e) {
-			return "Error: " + e.getMessage();
 		}
 	}
 
