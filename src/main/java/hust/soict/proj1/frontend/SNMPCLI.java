@@ -8,7 +8,7 @@ import hust.soict.proj1.snmpmanager.SNMPManagerFacade;
 public class SNMPCLI {
 
 	private static final Scanner scanner = new Scanner(System.in);
-	private static final SNMPManagerFacade manager = new SNMPManagerFacade();
+	private static final SNMPManagerFacade manager = SNMPManagerFacade.getInstance();
 
 	public static void main(String[] args) {
 		boolean running = true;

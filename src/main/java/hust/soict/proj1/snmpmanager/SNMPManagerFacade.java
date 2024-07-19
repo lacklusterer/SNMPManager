@@ -13,6 +13,8 @@ import java.io.IOException;
 
 public class SNMPManagerFacade {
 
+	private static volatile SNMPManagerFacade instance;
+
 	private Snmp snmp;
 	private Map<String, Target<?>> targetMap;
 
@@ -25,6 +27,17 @@ public class SNMPManagerFacade {
 			return;
 		}
 		this.targetMap = new HashMap<>();
+	}
+
+	public static SNMPManagerFacade getInstance() {
+		if (instance == null) {
+			synchronized (SNMPManagerFacade.class) {
+				if (instance == null) {
+					instance = new SNMPManagerFacade();
+				}
+			}
+		}
+		return instance;
 	}
 
 	public String get(String oid, String ipAddr) {
