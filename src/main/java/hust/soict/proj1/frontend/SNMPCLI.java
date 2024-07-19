@@ -5,12 +5,15 @@ import java.util.Scanner;
 
 import hust.soict.proj1.snmpmanager.SNMPManagerFacade;
 
-public class SNMPCLI {
+public class SNMPCLI implements Subscriber {
 
 	private static final Scanner scanner = new Scanner(System.in);
 	private static final SNMPManagerFacade manager = SNMPManagerFacade.getInstance();
 
 	public static void main(String[] args) {
+		SNMPCLI cli = new SNMPCLI();
+		manager.addSubscriber(cli);
+
 		boolean running = true;
 		while (running) {
 			printMenu();
@@ -34,6 +37,7 @@ public class SNMPCLI {
 			}
 		}
 		manager.closeSnmp();
+		manager.removeSubscriber(cli);
 	}
 
 	private static void printMenu() {
@@ -42,7 +46,7 @@ public class SNMPCLI {
 		System.out.println("2. List Managed Devices");
 		System.out.println("3. Make Request");
 		System.out.println("4. Exit");
-		System.out.print("Select and option : ");
+		System.out.print("Select an option: ");
 	}
 
 	private static void createTarget() {
@@ -87,11 +91,13 @@ public class SNMPCLI {
 	}
 
 	private static void makeRequest() {
-		listManagedDevices();
 		Map<String, Integer> devices = manager.getManagedDevices();
 		if (devices.isEmpty()) {
+			System.out.println("No managed devices available.");
 			return;
 		}
+
+		listManagedDevices();
 
 		int index = 1;
 		String[] ipArray = new String[devices.size()];
@@ -100,7 +106,7 @@ public class SNMPCLI {
 			index++;
 		}
 
-		System.out.print("Select a device : ");
+		System.out.print("Select a device: ");
 		int targetIndex = Integer.parseInt(scanner.nextLine()) - 1;
 		if (targetIndex < 0 || targetIndex >= ipArray.length) {
 			System.out.println("Invalid input.");
@@ -120,22 +126,20 @@ public class SNMPCLI {
 		System.out.print("Enter OID: ");
 		String oid = scanner.nextLine();
 
-		String response = "";
 		switch (requestType) {
 			case 1:
-				response = "GET response: " + manager.get(oid, ipAddr);
+				manager.get(oid, ipAddr);
 				break;
 			case 2:
-				response = manager.discover(ipAddr);
+				manager.discover(ipAddr);
 				break;
 			default:
 				System.out.println("Invalid request type.");
-				return;
 		}
-		System.out.println("\n" + response);
-
-		// TODO: Discover will put data into a database instead of just printing out
 	}
 
-	// TODO: Parse MIB file and create a database
+	@Override
+	public void update(String message) {
+		System.out.println(message);
+	}
 }
